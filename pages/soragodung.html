@@ -3,8 +3,8 @@
 <script src="https://unpkg.com/lodash@4.13.1/lodash.min.js"></script>
 <div id="watch-example">
     <p>
-        소라고둥님!! 
-        <input v-model="question" placeholder="궁금한 질문을 넣어주세요">
+        소라고둥님, 
+        <input v-model="question" placeholder="궁금한 (yes/no) 질문을 넣어주세요">
     </p>
     <p>{{ answer }}</p>
     <img v-bind:src="image"/>
@@ -16,7 +16,7 @@ var watchExampleVM = new Vue({
     el: '#watch-example',
     data: {
         question: '',
-        answer: '질문을 하기 전까지는 대답할 수 없습니다.',
+        answer: '질문을 기다리는중...',
         image: ''
     },
     watch: {
