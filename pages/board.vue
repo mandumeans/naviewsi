@@ -2,7 +2,7 @@
   <div id="board" class="board-row">
     <div class="board-row" v-for="(square_line_list, xIdx) in square_list" :key="square_line_list.id">
       <button class="square" @click="changeButtonState(xIdx, yIdx)" v-for="(item, yIdx) in square_line_list" :key="item.id">
-          {{ item }}
+          {{ item.value }}
       </button>
     </div>
   </div>
@@ -29,7 +29,10 @@ export default {
           const square_line_list = [];
             for(let j = 0; j < BOARD_SIZE; j++) {
                 const number = (BOARD_SIZE * i) + j;
-                square_line_list.push(number);
+                square_line_list.push({
+                  number : number,
+                  value : ""
+                });
             }
             square_list.push(square_line_list);
         }
@@ -37,7 +40,7 @@ export default {
     },
     changeButtonState: function(x, y){
       var vm = this;
-      vm.$set(this.square_list[x], y, (this.xIsNext ? 'X' : 'O'));
+      this.square_list[x][y].value = (this.xIsNext ? 'X' : 'O');
       vm.xIsNext = !vm.xIsNext;
     }
   }

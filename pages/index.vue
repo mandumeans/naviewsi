@@ -16,6 +16,9 @@ import 'static/board.css'
 
 export default {
   name: 'app',
+  components: {
+    'board': board
+  },
   data(){
     return {
     }
