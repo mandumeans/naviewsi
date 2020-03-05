@@ -1,11 +1,17 @@
 <template>
     <div id="app" class="game">
         <div class="game-board">
-          <board :square_list="square_list" :changeButtonState="changeButtonState"/>
+          <board :squareList="squareList" :changeButtonState="changeButtonState" :winner="winner"/>
         </div>
         <div class="game-info">
-            <div>status</div>
-            <ol>moves</ol>
+            <div >
+              {{ statusMessage }}
+            </div>
+            <ol>
+              <li v-for="history in historyMessage" :key="history.id">
+                  <button @click="goToHistory(history.nowStepNumber)">{{ history.desc }}</button>
+              </li>
+            </ol>
         </div>
     </div>
 </template>
@@ -19,14 +25,48 @@ export default {
   components: {
     'board': board
   },
-  data(){
+  data: function(){
     return {
-      square_list: [],
-      xIsNext: true
+      squareList: [],
+      xIsNext: true,
+      winner : null,      
+      history: [{
+          nowSquareList: [Array(3).fill(""),Array(3).fill(""),Array(3).fill("")],
+          nowStepNumber: 0,
+          desc: "",
+          winner: null
+      }]
+    }
+  },
+  computed: {
+    // 계산된 getter
+    statusMessage: function () {
+      let status;
+      if (this.winner) {
+          if(this.winner.isDraw){
+              status = 'This game is draw!!'
+          } else {
+              status = 'Winner: ' + this.winner.winner;
+          }
+      } else {
+        status = 'Next player: ' + (this.xIsNext ? 'X' : 'O');
+      }
+      return status;
+    },    
+    historyMessage : function() {
+      return this.history.map((step, move) => {
+            const desc = move ? 
+            'Go to move #(' + step.nowStepNumber % 3 + ',' + Math.floor((step.nowStepNumber) / 3) + ')' + step.nowStepNumber :
+            'Go to game start';
+
+            //const selectedChecker = (this.stepNumber === move) ?  'selected-history' : '';
+            step.desc = desc;
+            return step;
+        });
     }
   },
   created: function(){
-    this.square_list = this.getSquareList();
+    this.squareList = this.getSquareList();
   },
   methods: {
     calculateWinner: function(squares){
@@ -57,7 +97,7 @@ export default {
 
       let isEmpty = false;
       for(let i = 0; i < squares.length; i++){
-          if(squares[i][0].value == "" || squares[i][1].value == "" || squares[i][2].value == "") {
+          if(squares[i][0] == "" || squares[i][1] == "" || squares[i][2] == "") {
               isEmpty = true;
           }
       }
@@ -74,31 +114,55 @@ export default {
     
     getSquareList: function(){
         const BOARD_SIZE = 3;
-        const square_list = [];
+        const squareList = [];
 
         for(let i = 0; i < BOARD_SIZE; i++) {
-          const square_line_list = [];
+          const squareLineList = [];
             for(let j = 0; j < BOARD_SIZE; j++) {
                 const number = (BOARD_SIZE * i) + j;
-                square_line_list.push({
-                  number : number,
-                  value : ""
-                });
+                squareLineList.push("");
             }
-            square_list.push(square_line_list);
+            squareList.push(squareLineList);
         }
-        return square_list;
+        return squareList;
     },
 
     changeButtonState: function(event, x, y){
-      if (event) event.preventDefault();
-      if (this.calculateWinner(this.square_list) || this.square_list[x][y].value != "") {
+      var vm = this;
+      if (vm.squareList[x][y] != "" || vm.winner) {
         return;
       }
-      var vm = this;
-      this.square_list[x][y].value = (this.xIsNext ? 'X' : 'O');
+
+      //Arary에 요소 바뀌는건 set함수를 써야 다시 렌더링됨
+      vm.$set(vm.squareList[x], y, (vm.xIsNext ? 'X' : 'O'))
       vm.xIsNext = !vm.xIsNext;
+
+      //히스토리에 현재 정보 저장
+
+      let historyList = [];
+      for(const squareLineList of vm.squareList){
+        historyList.push(squareLineList.slice());
+      }
+
+
+      //승자 확인
+      var winner = vm.calculateWinner(vm.squareList);
+      if(winner != null){
+        vm.winner = winner;
+      }
+      vm.history.push({
+          nowSquareList: historyList,
+          nowStepNumber: vm.history.length,
+          winner: winner
+      });
+    },
+
+    goToHistory: function(step){
+      this.squareList = this.history[step].nowSquareList;
+      this.winner = this.history[step].winner;
+      this.xIsNext = (step % 2) === 0
     }
+
   }
 }
 </script>
