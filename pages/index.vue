@@ -76,7 +76,7 @@ export default {
           [[2,0], [2,1], [2,2]],
           [[0,0], [1,0], [2,0]],
           [[0,1], [1,1], [2,1]],
-          [[0,2], [1,2], [3,1]],
+          [[0,2], [1,2], [2,2]],
           [[0,0], [1,1], [2,2]],
           [[0,2], [1,1], [2,0]],
       ];
@@ -158,8 +158,13 @@ export default {
     },
 
     goToHistory: function(step){
-      this.squareList = this.history[step].nowSquareList;
+      let squareList = [];
+      for(const squareLineList of this.history[step].nowSquareList){
+        squareList.push(squareLineList.slice());
+      }
+      this.squareList = squareList;
       this.winner = this.history[step].winner;
+      this.history = this.history.slice(0, step + 1);
       this.xIsNext = (step % 2) === 0
     }
 

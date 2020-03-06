@@ -22,7 +22,7 @@ export default {
   methods: {
     winnerClass: function(xIdx, yIdx){
       let winnerClass = "";
-      if(this.winner == null){
+      if(this.winner == null || this.winner.isDraw){
         return "";
       } else {
         for(let item of this.winner.winnerLine){
